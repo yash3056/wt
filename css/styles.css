@@ -397,6 +397,64 @@ h1, h2, h3, h4 {
 .service-card p {
     font-size: 0.95rem;
     color: var(--text-color);
+    line-height: 1.6;
+}
+
+.service-details {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.3s ease 0.1s;
+}
+
+.service-details.expanded {
+    max-height: 500px;
+    opacity: 1;
+}
+
+.service-features {
+    margin-top: 1rem;
+    padding-left: 1.2rem;
+}
+
+.service-features li {
+    margin-bottom: 0.5rem;
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.service-features li::before {
+    content: '';
+    position: absolute;
+    left: -1.2rem;
+    top: 0.5rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+}
+
+.service-expand-btn {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.service-expand-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
 }
 
 /* Projects Section */

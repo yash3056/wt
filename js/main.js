@@ -51,6 +51,158 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Enhanced service cards with detailed information
+    const serviceItems = [
+        {
+            title: "Interior Design",
+            icon: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="currentColor"/></svg>',
+            description: "Creative solutions that balance aesthetics and functionality",
+            details: "Our comprehensive interior design services transform spaces into personalized environments that reflect your unique style and meet your functional needs. We handle everything from conceptualization to final styling touches.",
+            features: [
+                "Custom space planning and layout optimization",
+                "Color scheme and material selection",
+                "Furniture and décor curation",
+                "Lighting design and solutions"
+            ]
+        },
+        {
+            title: "Spatial Planning",
+            icon: '<svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="currentColor"/></svg>',
+            description: "Optimizing your space for both beauty and practicality",
+            details: "We analyze spatial relationships to create efficient floor plans that maximize functionality while maintaining aesthetic appeal. Our planning process ensures every square meter of your space serves a purpose.",
+            features: [
+                "Technical floor plan development",
+                "Traffic flow optimization",
+                "Spatial zoning for multi-functional areas",
+                "Accessibility considerations and solutions"
+            ]
+        },
+        {
+            title: "Material Selection",
+            icon: '<svg viewBox="0 0 100 100"><polygon points="50,20 80,80 20,80" fill="currentColor"/></svg>',
+            description: "Curated selection of premium materials and finishes",
+            details: "Our material selection process involves sourcing the perfect textures, finishes, and materials that align with your design vision while meeting practical requirements for durability and maintenance.",
+            features: [
+                "Custom material palettes and mood boards",
+                "Sustainable and eco-friendly options",
+                "Tactile sample presentation and comparison",
+                "Finish scheduling and specification documentation"
+            ]
+        },
+        {
+            title: "3D Visualization",
+            icon: '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="40" ry="30" fill="currentColor"/></svg>',
+            description: "Immersive previews of your future space",
+            details: "Experience your design before implementation through our advanced 3D visualization services. These photorealistic renderings help you make informed decisions and refine the design to perfection.",
+            features: [
+                "Photorealistic 3D renderings",
+                "Virtual walk-throughs of designed spaces",
+                "Lighting simulation at different times of day",
+                "Material and finish visualization"
+            ]
+        },
+        {
+            title: "Project Management",
+            icon: '<svg viewBox="0 0 100 100"><rect x="20" y="20" width="28" height="28" fill="currentColor"/><rect x="52" y="20" width="28" height="28" fill="currentColor"/><rect x="20" y="52" width="28" height="28" fill="currentColor"/><rect x="52" y="52" width="28" height="28" fill="currentColor"/></svg>',
+            description: "Seamless coordination from concept to completion",
+            details: "Our project management services ensure your design vision is executed flawlessly. We coordinate all aspects of the project, from contractor selection to final installation, keeping everything on schedule and within budget.",
+            features: [
+                "Contractor selection and coordination",
+                "Budget management and cost control",
+                "Timeline development and milestone tracking",
+                "Quality control and problem resolution"
+            ]
+        },
+        {
+            title: "Custom Furniture Design",
+            icon: '<svg viewBox="0 0 100 100"><path d="M20,80 L20,50 L40,40 L60,40 L80,50 L80,80 Z" fill="currentColor"/><rect x="30" y="30" width="40" height="10" fill="currentColor"/></svg>',
+            description: "Bespoke pieces designed exclusively for your space",
+            details: "When standard furniture doesn't meet your unique requirements, our custom furniture design service creates one-of-a-kind pieces perfectly tailored to your space and style preferences.",
+            features: [
+                "Custom design concept development",
+                "Material and finish selection",
+                "Prototype review and refinement",
+                "Production oversight and quality control"
+            ]
+        }
+    ];
+
+    // Populate services grid with enhanced service cards
+    const servicesGrid = document.querySelector('.services-grid');
+    
+    // Clear any existing service cards
+    servicesGrid.innerHTML = '';
+    
+    serviceItems.forEach((item, index) => {
+        const serviceCard = document.createElement('div');
+        serviceCard.className = 'service-card';
+        
+        // Create the service card HTML structure
+        serviceCard.innerHTML = `
+            <div class="service-icon" id="icon-${index + 1}">
+                ${item.icon}
+            </div>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+            <div class="service-details">
+                <p>${item.details}</p>
+                <ul class="service-features">
+                    ${item.features.map(feature => `<li>${feature}</li>`).join('')}
+                </ul>
+            </div>
+            <button class="service-expand-btn">Learn More</button>
+        `;
+        
+        servicesGrid.appendChild(serviceCard);
+        
+        // Add the expand/collapse functionality
+        const expandBtn = serviceCard.querySelector('.service-expand-btn');
+        const serviceDetails = serviceCard.querySelector('.service-details');
+        
+        // Initially hide the details
+        serviceDetails.style.display = 'block';
+        serviceDetails.style.maxHeight = '0';
+        serviceDetails.style.opacity = '0';
+        
+        expandBtn.addEventListener('click', () => {
+            const isExpanded = serviceDetails.classList.contains('expanded');
+            
+            if (isExpanded) {
+                serviceDetails.classList.remove('expanded');
+                serviceDetails.style.maxHeight = '0';
+                serviceDetails.style.opacity = '0';
+                expandBtn.textContent = 'Learn More';
+                
+                // Scroll to card top if it's offscreen after collapse
+                setTimeout(() => {
+                    const cardRect = serviceCard.getBoundingClientRect();
+                    if (cardRect.top < 0) {
+                        serviceCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            } else {
+                serviceDetails.classList.add('expanded');
+                serviceDetails.style.maxHeight = '500px';
+                serviceDetails.style.opacity = '1';
+                expandBtn.textContent = 'Show Less';
+                
+                // Ensure expanded content is visible
+                setTimeout(() => {
+                    const detailsBottom = serviceDetails.getBoundingClientRect().bottom;
+                    const viewportHeight = window.innerHeight;
+                    if (detailsBottom > viewportHeight) {
+                        serviceDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 300);
+            }
+        });
+    });
+
+    // Set the service icon colors using the existing code pattern
+    document.querySelectorAll('.service-icon').forEach((icon, index) => {
+        icon.style.color = `hsl(30, ${20 + index * 10}%, ${60 + index * 5}%)`;
+    });
+
     // Updated Projects data with detailed interior design projects
     const projectItems = [
         {
