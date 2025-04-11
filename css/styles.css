@@ -420,17 +420,35 @@ h1, h2, h3, h4 {
     overflow: hidden;
     box-shadow: 0 5px 15px var(--shadow);
     cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.project-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
+.project-meta {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
 }
 
-.project-item:hover .project-image {
-    transform: scale(1.05);
+.project-year {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.project-client {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    max-width: 150px;
+}
+
+.project-item:hover .project-meta {
+    opacity: 0;
 }
 
 .project-overlay {
@@ -441,17 +459,12 @@ h1, h2, h3, h4 {
     padding: 2rem;
     background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
     color: var(--white);
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
+    transform: translateY(60%);
+    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .project-item:hover .project-overlay {
     transform: translateY(0);
-}
-
-.project-overlay h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
 }
 
 .project-category {
@@ -461,7 +474,36 @@ h1, h2, h3, h4 {
     color: var(--primary-color);
     border-radius: 20px;
     font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.project-overlay h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.project-overlay p {
+    font-size: 0.9rem;
+    line-height: 1.5;
     margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.project-details {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.2s;
+}
+
+.project-item:hover {
+    transform: rotate(0deg) scale(1.02) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 /* Testimonials Section */
