@@ -1,323 +1,218 @@
 let scene, camera, renderer, controls;
-let paperElements = [];
+let particles = [];
+let isInitialized = false;
 
 function init() {
-    // Initialize scene with a light background to match the paper aesthetic
+    // Initialize scene with a gradient background
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf5f2ed); // Paper color
 
-    // Use a more artistic camera angle
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(4, 2, 4);
+    // Camera setup for a more immersive view
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 20);
     
-    // Set up renderer with paper-like quality
+    // Set up renderer with high quality settings
     renderer = new THREE.WebGLRenderer({ 
         antialias: true,
         alpha: true
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.getElementById('room-model').appendChild(renderer.domElement);
-
-    // Add subtle lighting for paper look
-    setupLighting();
-
-    // Create artistic room design
-    createArtisticRoom();
-
-    // Add floating paper elements for the collage effect
-    addPaperElements();
-
-    // Setup camera controls
-    setupControls();
-
-    // Add window resize handler
-    window.addEventListener('resize', onWindowResize, false);
-
-    // Start animation loop
-    animate();
-}
-
-function setupLighting() {
-    // Ambient light for general illumination - warmer tone
-    const ambientLight = new THREE.AmbientLight(0xf5e5d5, 0.6);
-    scene.add(ambientLight);
-
-    // Main directional light with warm tone
-    const mainLight = new THREE.DirectionalLight(0xfff0e0, 0.8);
-    mainLight.position.set(5, 8, 5);
-    mainLight.castShadow = true;
-    mainLight.shadow.mapSize.width = 1024;
-    mainLight.shadow.mapSize.height = 1024;
-    mainLight.shadow.camera.near = 0.5;
-    mainLight.shadow.camera.far = 30;
-    mainLight.shadow.camera.left = -10;
-    mainLight.shadow.camera.right = 10;
-    mainLight.shadow.camera.top = 10;
-    mainLight.shadow.camera.bottom = -10;
-    scene.add(mainLight);
-
-    // Accent light for the artistic touch
-    const accentLight = new THREE.PointLight(0xe6c9a8, 0.6);
-    accentLight.position.set(-3, 2, -3);
-    scene.add(accentLight);
-}
-
-function createArtisticRoom() {
-    // Create more artistic materials with paper-like textures
-    const floorMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xe5d3b3,
-        roughness: 0.9,
-        metalness: 0.1
-    });
-
-    const wallMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xf5f2ed,
-        roughness: 0.95,
-        metalness: 0.05
-    });
-
-    // Floor
-    const floorGeometry = new THREE.PlaneGeometry(10, 10);
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
-
-    // Walls with artistic angles
-    createWall(-5, 2, 0, Math.PI / 2, wallMaterial); // Left wall
-    createWall(5, 2, 0, -Math.PI / 2, wallMaterial); // Right wall
-    createWall(0, 2, -5, 0, wallMaterial); // Back wall
-
-    // Add stylized furniture
-    addStylizedFurniture();
-}
-
-function createWall(x, y, z, rotation, material) {
-    const wallGeometry = new THREE.PlaneGeometry(10, 4);
-    const wall = new THREE.Mesh(wallGeometry, material);
-    wall.position.set(x, y, z);
-    wall.rotation.y = rotation;
-    wall.receiveShadow = true;
-    scene.add(wall);
-}
-
-function addStylizedFurniture() {
-    // Use colors from Studio Tom palette
-    const primaryMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x3d3b39, // Dark brown
-        roughness: 0.7,
-        metalness: 0.1
-    });
     
-    const accentMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xe6c9a8, // Accent beige
-        roughness: 0.5,
-        metalness: 0.2
-    });
-
-    // Create a stylized sofa that looks like it's made of paper cutouts
-    const sofa = createSofa(primaryMaterial, accentMaterial);
-    sofa.position.set(0, 0.5, -3);
-    scene.add(sofa);
-
-    // Add a stylized coffee table
-    const table = createTable(accentMaterial);
-    table.position.set(0, 0.3, -1.5);
-    scene.add(table);
-
-    // Add decorative elements
-    addDecorativeElements();
-}
-
-function createSofa(primaryMaterial, accentMaterial) {
-    const sofaGroup = new THREE.Group();
-
-    // Main body with rounded edges for paper-like feel
-    const bodyGeometry = new THREE.BoxGeometry(3, 0.6, 1);
-    const body = new THREE.Mesh(bodyGeometry, primaryMaterial);
-    body.castShadow = true;
-    body.receiveShadow = true;
-    sofaGroup.add(body);
-
-    // Backrest with slight tilt
-    const backGeometry = new THREE.BoxGeometry(3, 1, 0.3);
-    const back = new THREE.Mesh(backGeometry, primaryMaterial);
-    back.position.set(0, 0.5, -0.5);
-    back.rotation.x = Math.PI * 0.05;
-    back.castShadow = true;
-    back.receiveShadow = true;
-    sofaGroup.add(back);
-
-    // Cushions with accent color
-    const cushionGeometry = new THREE.BoxGeometry(0.8, 0.2, 0.8);
-    const cushionPositions = [-0.9, 0, 0.9];
-    
-    cushionPositions.forEach(xPos => {
-        const cushion = new THREE.Mesh(cushionGeometry, accentMaterial);
-        cushion.position.set(xPos, 0.4, 0);
-        cushion.castShadow = true;
-        cushion.receiveShadow = true;
-        sofaGroup.add(cushion);
-    });
-
-    return sofaGroup;
-}
-
-function createTable(material) {
-    const tableGroup = new THREE.Group();
-
-    // Table top with paper-like appearance (thin)
-    const topGeometry = new THREE.CylinderGeometry(1, 1, 0.05, 32);
-    const top = new THREE.Mesh(topGeometry, material);
-    top.position.y = 0.4;
-    top.castShadow = true;
-    tableGroup.add(top);
-
-    // Single central leg with artistic angle
-    const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 12);
-    const leg = new THREE.Mesh(legGeometry, material);
-    leg.position.y = 0;
-    leg.castShadow = true;
-    tableGroup.add(leg);
-
-    return tableGroup;
-}
-
-function addDecorativeElements() {
-    // Add a vase with artistic form
-    const vaseMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xd1bfa7, // Studio Tom color
-        roughness: 0.3,
-        metalness: 0.5
-    });
-    
-    const vaseBaseGeometry = new THREE.CylinderGeometry(0.15, 0.2, 0.4, 16);
-    const vaseBase = new THREE.Mesh(vaseBaseGeometry, vaseMaterial);
-    vaseBase.position.set(0, 0.6, -1.5);
-    vaseBase.castShadow = true;
-    scene.add(vaseBase);
-    
-    // Create a stylized plant (abstract form)
-    const stemMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x8e7b65,
-        roughness: 0.9,
-        metalness: 0.1
-    });
-    
-    const leafMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xc4b095,
-        roughness: 0.8,
-        metalness: 0.1
-    });
-    
-    // Add abstract plant stems
-    for (let i = 0; i < 3; i++) {
-        const angle = (i / 3) * Math.PI * 2;
-        const stemGeometry = new THREE.BoxGeometry(0.05, 0.8 + Math.random() * 0.4, 0.05);
-        const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+    // Find the container element and append renderer
+    const container = document.getElementById('room-model');
+    if (container) {
+        // Clear any existing canvas
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        container.appendChild(renderer.domElement);
         
-        stem.position.set(
-            0 + Math.sin(angle) * 0.05,
-            1 + Math.random() * 0.2,
-            -1.5 + Math.cos(angle) * 0.05
-        );
+        // Style the container for fullscreen background
+        container.style.position = 'absolute';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.zIndex = '-1';
         
-        // Random slight tilt
-        stem.rotation.x = (Math.random() - 0.5) * 0.2;
-        stem.rotation.z = (Math.random() - 0.5) * 0.4;
-        stem.castShadow = true;
-        scene.add(stem);
+        // Create gradient background similar to Spafax
+        createBackgroundGradient();
         
-        // Add a leaf to each stem
-        const leafGeometry = new THREE.PlaneGeometry(0.2 + Math.random() * 0.3, 0.2 + Math.random() * 0.3);
-        const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+        // Add 3D elements
+        createFloatingElements();
         
-        leaf.position.set(
-            stem.position.x + (Math.random() - 0.5) * 0.3,
-            stem.position.y + 0.2 + Math.random() * 0.3,
-            stem.position.z + (Math.random() - 0.5) * 0.3
-        );
+        // Setup camera controls with smooth movement
+        setupControls();
         
-        // Random rotation for leaves
-        leaf.rotation.x = Math.random() * Math.PI;
-        leaf.rotation.y = Math.random() * Math.PI;
-        leaf.rotation.z = Math.random() * Math.PI;
-        leaf.castShadow = true;
-        scene.add(leaf);
+        // Add window resize handler
+        window.addEventListener('resize', onWindowResize, false);
+        
+        // Start animation loop
+        animate();
+        
+        isInitialized = true;
+    } else {
+        console.error('Container element not found');
     }
 }
 
-function addPaperElements() {
-    // Create floating paper-like elements for the collage effect
-    const paperColors = [
-        0xe6c9a8, // Studio Tom accent color
-        0xd1bfa7, // Lighter accent
-        0xf5f2ed, // Paper color
-        0xc4b095  // Darker accent
+function createBackgroundGradient() {
+    // Create a gradient texture with black to dark gray
+    const canvas = document.createElement('canvas');
+    canvas.width = 2;
+    canvas.height = 2048;
+    
+    const context = canvas.getContext('2d');
+    
+    // Create gradient - using black color palette
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#000000'); // Pure black at top
+    gradient.addColorStop(0.5, '#0a0a0a'); // Very dark gray in middle
+    gradient.addColorStop(1, '#121212'); // Slightly lighter dark gray at bottom
+    
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    
+    // Create a background plane that fills the view
+    const bgGeometry = new THREE.PlaneGeometry(2000, 2000);
+    const bgMaterial = new THREE.MeshBasicMaterial({ map: texture, depthWrite: false });
+    const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+    
+    // Position the background
+    bgMesh.position.z = -100;
+    bgMesh.renderOrder = -1000; // Render first
+    
+    scene.add(bgMesh);
+    
+    // Add subtle vignette effect
+    addVignette();
+}
+
+function addVignette() {
+    // Add a subtle vignette effect for depth
+    const vignetteGeometry = new THREE.PlaneGeometry(2000, 2000);
+    const vignetteMaterial = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        uniforms: {
+            uAspect: { value: window.innerWidth / window.innerHeight }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            varying vec2 vUv;
+            uniform float uAspect;
+            
+            void main() {
+                vec2 uv = vUv - 0.5;
+                uv.x *= uAspect;
+                
+                float vig = 1.0 - length(uv) * 0.7;
+                vig = smoothstep(0.0, 1.0, vig);
+                
+                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0 - vig);
+            }
+        `
+    });
+    
+    const vignetteMesh = new THREE.Mesh(vignetteGeometry, vignetteMaterial);
+    vignetteMesh.position.z = -95;
+    vignetteMesh.renderOrder = -999;
+    scene.add(vignetteMesh);
+}
+
+function createFloatingElements() {
+    // Create particles for black background
+    const particleCount = 60;
+    const particleGeometries = [
+        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.SphereGeometry(0.7, 16, 16),
+        new THREE.TetrahedronGeometry(0.8),
+        new THREE.OctahedronGeometry(0.7)
     ];
     
-    // Various paper shapes
-    const paperGeometries = [
-        new THREE.PlaneGeometry(1, 1.5),   // Rectangle
-        new THREE.CircleGeometry(0.7, 32),  // Circle
-        new THREE.PlaneGeometry(1.2, 1.2)   // Square
+    // Materials with slight transparency - more subtle on black
+    const particleMaterials = [
+        new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.7 }), // Dark gray
+        new THREE.MeshBasicMaterial({ color: 0x444444, transparent: true, opacity: 0.5 }), // Medium dark gray
+        new THREE.MeshBasicMaterial({ color: 0x222222, transparent: true, opacity: 0.6 }), // Very dark gray
+        new THREE.MeshBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.6 })  // Lighter gray
     ];
     
-    // Create several floating paper elements
-    for (let i = 0; i < 7; i++) {
-        const paperMaterial = new THREE.MeshStandardMaterial({
-            color: paperColors[Math.floor(Math.random() * paperColors.length)],
-            roughness: 0.9,
-            metalness: 0.1,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.9
-        });
+    for (let i = 0; i < particleCount; i++) {
+        const geometry = particleGeometries[Math.floor(Math.random() * particleGeometries.length)];
+        const material = particleMaterials[Math.floor(Math.random() * particleMaterials.length)];
         
-        const geometry = paperGeometries[Math.floor(Math.random() * paperGeometries.length)];
-        const paper = new THREE.Mesh(geometry, paperMaterial);
+        const particle = new THREE.Mesh(geometry, material);
         
-        // Position papers throughout the scene
-        paper.position.set(
-            (Math.random() - 0.5) * 8,
-            Math.random() * 4 + 1,
-            (Math.random() - 0.5) * 8
-        );
+        // Distribute particles in 3D space
+        particle.position.x = (Math.random() - 0.5) * 80;
+        particle.position.y = (Math.random() - 0.5) * 50;
+        particle.position.z = (Math.random() - 0.5) * 40 - 10;
+        
+        // Random scale for variety
+        const scale = Math.random() * 0.6 + 0.2;
+        particle.scale.set(scale, scale, scale);
         
         // Random rotation
-        paper.rotation.x = Math.random() * Math.PI;
-        paper.rotation.y = Math.random() * Math.PI;
-        paper.rotation.z = Math.random() * Math.PI;
+        particle.rotation.x = Math.random() * Math.PI;
+        particle.rotation.y = Math.random() * Math.PI;
+        particle.rotation.z = Math.random() * Math.PI;
         
-        paper.castShadow = true;
-        scene.add(paper);
+        scene.add(particle);
         
         // Store for animation
-        paperElements.push({
-            mesh: paper,
-            initialY: paper.position.y,
-            floatSpeed: 0.2 + Math.random() * 0.3,
-            rotateSpeed: (Math.random() - 0.5) * 0.01
+        particles.push({
+            mesh: particle,
+            rotationSpeed: {
+                x: (Math.random() - 0.5) * 0.003,
+                y: (Math.random() - 0.5) * 0.003,
+                z: (Math.random() - 0.5) * 0.003
+            },
+            moveSpeed: {
+                x: (Math.random() - 0.5) * 0.01,
+                y: (Math.random() - 0.5) * 0.01,
+                z: (Math.random() - 0.5) * 0.005
+            },
+            initialPosition: {
+                x: particle.position.x,
+                y: particle.position.y,
+                z: particle.position.z
+            }
         });
     }
+    
+    // Add subtle lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+    
+    const pointLight = new THREE.PointLight(0xffffff, 0.5);
+    pointLight.position.set(5, 5, 20);
+    scene.add(pointLight);
 }
 
 function setupControls() {
+    // Use OrbitControls for camera movement
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 3;
-    controls.maxDistance = 10;
-    controls.maxPolarAngle = Math.PI / 2;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.5;
-    controls.target.set(0, 1, -2);
+    controls.enableZoom = false; // Disable zoom for background effect
+    controls.enablePan = false;  // Disable panning for background effect
+    controls.rotateSpeed = 0.07; // Slow down rotation for subtle movement
+    controls.autoRotate = true;  // Auto-rotate for ambient movement
+    controls.autoRotateSpeed = 0.1; // Very slow rotation
 }
 
 function onWindowResize() {
+    // Update camera and renderer on window resize
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -326,20 +221,43 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
     
-    // Animate floating paper elements
+    if (!isInitialized) return;
+    
     const time = Date.now() * 0.001;
     
-    paperElements.forEach(element => {
+    // Animate floating elements
+    particles.forEach(particle => {
         // Gentle floating motion
-        element.mesh.position.y = element.initialY + Math.sin(time * element.floatSpeed) * 0.2;
+        particle.mesh.position.x = particle.initialPosition.x + Math.sin(time * particle.moveSpeed.x) * 2;
+        particle.mesh.position.y = particle.initialPosition.y + Math.cos(time * particle.moveSpeed.y) * 2;
+        particle.mesh.position.z = particle.initialPosition.z + Math.sin(time * particle.moveSpeed.z) * 1;
         
         // Subtle rotation
-        element.mesh.rotation.x += element.rotateSpeed;
-        element.mesh.rotation.y += element.rotateSpeed * 0.7;
+        particle.mesh.rotation.x += particle.rotationSpeed.x;
+        particle.mesh.rotation.y += particle.rotationSpeed.y;
+        particle.mesh.rotation.z += particle.rotationSpeed.z;
     });
+    
+    // Mouse interaction - move particles slightly based on mouse position
+    if (window.mouseX !== undefined && window.mouseY !== undefined) {
+        particles.forEach(particle => {
+            particle.mesh.position.x += (window.mouseX * 0.0005);
+            particle.mesh.position.y += (window.mouseY * 0.0005);
+        });
+    }
     
     controls.update();
     renderer.render(scene, camera);
 }
 
+// Track mouse movement for interactive effect
+window.addEventListener('mousemove', (event) => {
+    window.mouseX = (event.clientX - window.innerWidth / 2);
+    window.mouseY = -(event.clientY - window.innerHeight / 2);
+});
+
+// Initialize scene on DOM loaded
 document.addEventListener('DOMContentLoaded', init);
+
+// Reinitialize if needed from main.js
+window.reinitThreeScene = init;
