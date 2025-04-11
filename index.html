@@ -48,15 +48,81 @@
     </header>
 
     <section id="about" class="about">
+        <div class="about-bg-shape"></div>
+        <div class="about-floating-element" id="about-float-1"></div>
+        <div class="about-floating-element" id="about-float-2"></div>
+        
         <div class="section-content">
             <div class="about-text">
-                <h2>Welcome to <span class="studio-name">Studio Tom</span></h2>
-                <p>We are an interior architecture and design studio that provides creative and functional design solutions. Our approach combines artistic vision with practical expertise to transform spaces into captivating environments.</p>
-                <p>We've embraced the art of design to bring you a visual feast - showcasing the countless possibilities that we can bring to life.</p>
+                <div class="section-title-container">
+                    <span class="section-subtitle">Who We Are</span>
+                    <h2>Welcome to <span class="studio-name">Studio Tom</span></h2>
+                </div>
+                
+                <div class="about-description">
+                    <p>We are an award-winning interior architecture and design studio that creates thoughtful, functional spaces that inspire and delight. Our approach combines artistic vision with practical expertise to transform ordinary environments into extraordinary experiences.</p>
+                    
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">75+</span>
+                            <span class="stat-label">Projects Completed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">12</span>
+                            <span class="stat-label">Design Awards</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Years Experience</span>
+                        </div>
+                    </div>
+                    
+                    <p>We've embraced the art of design to bring you a visual feast - showcasing the countless possibilities that we can bring to life.</p>
+                    
+                    <div class="about-values">
+                        <div class="value-item">
+                            <div class="value-icon">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 7L12 3L4 7V17L12 21L20 17V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                    <path d="M12 12L12 21" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 12L4 7" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 12L20 7" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <h3>Purposeful Design</h3>
+                            <p>Every decision is intentional, balancing form and function</p>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-icon">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <h3>Timeless Approach</h3>
+                            <p>Creating enduring spaces that evolve with you</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="about-image-collage">
-                <div class="collage-image" id="about-image-1"></div>
-                <div class="collage-image" id="about-image-2"></div>
+            
+            <div class="about-visual">
+                <div class="about-image-stack">
+                    <div class="image-container primary-image">
+                        <img src="assets/images/placeholder1.jpg" alt="Studio Tom Interior Design" class="about-img">
+                        <div class="image-caption">Residential Project — Nordic Haven</div>
+                    </div>
+                    <div class="image-container secondary-image">
+                        <img src="assets/images/placeholder2.jpg" alt="Studio Tom Design Process" class="about-img">
+                    </div>
+                    <div class="collage-accent" id="collage-accent-1"></div>
+                    <div class="collage-accent" id="collage-accent-2"></div>
+                </div>
+                
+                <div class="team-quote">
+                    <blockquote>"We don't just design spaces, we craft experiences that resonate with those who inhabit them."</blockquote>
+                    <cite>— Tom Wilson, Founder</cite>
+                </div>
             </div>
         </div>
     </section>

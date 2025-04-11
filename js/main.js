@@ -29,6 +29,86 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     });
 
+    // About section animations
+    const aboutObserverOptions = {
+        threshold: 0.2,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    // Animate stats with counting effect
+    const statsNumbers = document.querySelectorAll('.stat-number');
+    
+    const animateStats = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                const value = parseInt(target.textContent);
+                let current = 0;
+                const increment = Math.ceil(value / 40);
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= value) {
+                        target.textContent = value + (target.textContent.includes('+') ? '+' : '');
+                        clearInterval(timer);
+                    } else {
+                        target.textContent = current + (target.textContent.includes('+') ? '+' : '');
+                    }
+                }, 30);
+                observer.unobserve(target);
+            }
+        });
+    };
+
+    const statsObserver = new IntersectionObserver(animateStats, aboutObserverOptions);
+    statsNumbers.forEach(stat => {
+        // Store the original text to handle the plus sign
+        const originalText = stat.textContent;
+        const hasPlus = originalText.includes('+');
+        const value = parseInt(originalText);
+        
+        // Start at 0
+        stat.textContent = '0' + (hasPlus ? '+' : '');
+        statsObserver.observe(stat);
+    });
+
+    // Image tilt effect for about images
+    const aboutImages = document.querySelectorAll('.image-container');
+    
+    aboutImages.forEach(image => {
+        image.addEventListener('mousemove', (e) => {
+            const rect = image.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            
+            // Calculate tilt angle
+            const tiltX = (y - 0.5) * 10; // Vertical tilt
+            const tiltY = (0.5 - x) * 10; // Horizontal tilt
+            
+            image.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-10px)`;
+        });
+        
+        image.addEventListener('mouseleave', () => {
+            image.style.transform = '';
+        });
+    });
+
+    // Animate value cards on hover
+    const valueItems = document.querySelectorAll('.value-item');
+    
+    valueItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            const icon = item.querySelector('.value-icon');
+            icon.style.transform = 'scale(1.2) rotate(5deg)';
+            icon.style.color = 'var(--primary-color)';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            const icon = item.querySelector('.value-icon');
+            icon.style.transform = '';
+            icon.style.color = '';
+        });
+    });
+
     // Custom cursor effect for interactive elements (inspired by Studio Tom)
     const cursorDot = document.createElement('div');
     cursorDot.className = 'cursor-dot';
