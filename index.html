@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Studio Tom - Interior Architecture and Design Solutions">
+    <meta name="keywords" content="interior design, home decoration, studio tom, architecture, design solutions">
+    <meta name="author" content="Studio Tom">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Studio Tom - Interior Architecture & Design">
+    <meta property="og:description" content="Creative interior architecture and design solutions">
+    <meta property="og:type" content="website">
+    
+    <title>Studio Tom - Interior Architecture & Design</title>
+    
+    <!-- Preload critical assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <script async src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+    <script async src="https://unpkg.com/three@0.157.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="logo">Studio Tom</div>
+        <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#services">Services</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact" class="contact-btn">Get in touch</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="collage-container">
+            <div id="room-model"></div>
+            <div class="collage-element" id="collage-1"></div>
+            <div class="collage-element" id="collage-2"></div>
+            <div class="collage-element" id="collage-3"></div>
+        </div>
+        <div class="hero-content">
+            <h1>Where <span class="accent">creativity</span> meets interior design magic</h1>
+            <p class="hero-subtitle">Interior architecture and design solutions that transform spaces</p>
+            <button class="cta-button">Start your project</button>
+        </div>
+    </header>
+
+    <section id="about" class="about">
+        <div class="section-content">
+            <div class="about-text">
+                <h2>Welcome to <span class="studio-name">Studio Tom</span></h2>
+                <p>We are an interior architecture and design studio that provides creative and functional design solutions. Our approach combines artistic vision with practical expertise to transform spaces into captivating environments.</p>
+                <p>We've embraced the art of design to bring you a visual feast - showcasing the countless possibilities that we can bring to life.</p>
+            </div>
+            <div class="about-image-collage">
+                <div class="collage-image" id="about-image-1"></div>
+                <div class="collage-image" id="about-image-2"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="section-header">
+            <h2>Our Services</h2>
+            <p>Comprehensive design solutions for every space</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon" id="icon-1"></div>
+                <h3>Interior Design</h3>
+                <p>Creative solutions that balance aesthetics and functionality</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon" id="icon-2"></div>
+                <h3>Spatial Planning</h3>
+                <p>Optimizing your space for both beauty and practicality</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon" id="icon-3"></div>
+                <h3>Material Selection</h3>
+                <p>Curated selection of premium materials and finishes</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon" id="icon-4"></div>
+                <h3>3D Visualization</h3>
+                <p>Immersive previews of your future space</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="projects">
+        <div class="section-header">
+            <h2>Featured Projects</h2>
+            <p>Explore our latest interior transformations</p>
+        </div>
+        <div class="projects-grid">
+            <!-- Projects will be dynamically added -->
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials">
+        <div class="section-header">
+            <h2>Client Stories</h2>
+            <p>What our clients say about working with us</p>
+        </div>
+        <div class="testimonials-slider">
+            <!-- Testimonials will be dynamically added -->
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="contact-content">
+            <div class="contact-info">
+                <h2>Get in Touch</h2>
+                <p>Ready to transform your space? Let's discuss your project.</p>
+                <div class="contact-details">
+                    <p>Email: hello@studiotom.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                    <p>Studio: 123 Design Street, Creative City</p>
+                </div>
+                <div class="social-links">
+                    <a href="#" class="social-icon">Instagram</a>
+                    <a href="#" class="social-icon">Pinterest</a>
+                    <a href="#" class="social-icon">Dribbble</a>
+                </div>
+            </div>
+            <div class="contact-form-container">
+                <form class="contact-form">
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                    <textarea placeholder="Tell us about your project"></textarea>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Studio Tom</div>
+            <div class="footer-links">
+                <a href="#about">About</a>
+                <a href="#services">Services</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2025 Studio Tom. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/three-scene.js"></script>
+</body>
+</html>
