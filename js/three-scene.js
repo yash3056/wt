@@ -1,6 +1,19 @@
 let scene, camera, renderer, controls;
 let particles = [];
 let isInitialized = false;
+let scrollY = 0;
+let targetScrollY = 0;
+let mouse = { x: 0, y: 0 };
+let targetMouse = { x: 0, y: 0 };
+
+// Add global state variables for advanced interactions
+let magneticEffect = { active: false, intensity: 0, position: { x: 0, y: 0 } };
+let heroInteractionParams = null;
+let scrollState = { position: 0, direction: 'down', velocity: 0 };
+let sectionInView = null;
+let particlePulseActive = false;
+let particlePulseOrigin = { x: 0, y: 0, z: 0 };
+let particlePulseTime = 0;
 
 function init() {
     // Initialize scene with a gradient background
@@ -46,6 +59,12 @@ function init() {
         
         // Add window resize handler
         window.addEventListener('resize', onWindowResize, false);
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', onScroll, false);
+        
+        // Add mouse move event listener with more detailed tracking
+        window.addEventListener('mousemove', onMouseMove, false);
         
         // Start animation loop
         animate();
@@ -186,7 +205,16 @@ function createFloatingElements() {
                 x: particle.position.x,
                 y: particle.position.y,
                 z: particle.position.z
-            }
+            },
+            // Add mouse sensitivity - different for each particle
+            mouseSensitivity: {
+                x: (Math.random() * 0.01 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
+                y: (Math.random() * 0.01 + 0.005) * (Math.random() > 0.5 ? 1 : -1)
+            },
+            // Add scroll sensitivity
+            scrollSensitivity: (Math.random() * 0.02 + 0.01) * (Math.random() > 0.5 ? 1 : -1),
+            // Random parallax depth factor
+            parallaxFactor: Math.random() * 0.5 + 0.5
         });
     }
     
@@ -197,6 +225,47 @@ function createFloatingElements() {
     const pointLight = new THREE.PointLight(0xffffff, 0.5);
     pointLight.position.set(5, 5, 20);
     scene.add(pointLight);
+
+    // Make global functions available to main.js
+    window.pulseParticles = pulseParticles;
+    window.setHeroInteraction = setHeroInteraction;
+}
+
+// Create a pulse effect that ripples through particles when a section comes into view
+function pulseParticles(sectionId) {
+    particlePulseActive = true;
+    particlePulseTime = 0;
+    
+    // Set pulse origin based on section
+    switch(sectionId) {
+        case 'about':
+            particlePulseOrigin = { x: -20, y: 0, z: 0 };
+            break;
+        case 'services':
+            particlePulseOrigin = { x: 20, y: 0, z: 0 };
+            break;
+        case 'projects':
+            particlePulseOrigin = { x: 0, y: -20, z: 0 };
+            break;
+        case 'testimonials':
+            particlePulseOrigin = { x: 0, y: 20, z: 0 };
+            break;
+        case 'contact':
+            particlePulseOrigin = { x: 0, y: 0, z: -30 };
+            break;
+        default:
+            particlePulseOrigin = { x: 0, y: 0, z: 0 };
+    }
+    
+    // Reset pulse after 3 seconds
+    setTimeout(() => {
+        particlePulseActive = false;
+    }, 3000);
+}
+
+// Handle hero section interaction effect
+function setHeroInteraction(params) {
+    heroInteractionParams = params;
 }
 
 function setupControls() {
@@ -218,6 +287,34 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+// Update mouse effect handler - now considers both regular mouse and magnetic effects
+function onMouseMove(event) {
+    // Calculate mouse position in normalized device coordinates (-1 to +1)
+    targetMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    targetMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    // Sync with global magnetic effect state
+    if (window.magneticEffect) {
+        magneticEffect = window.magneticEffect;
+    }
+}
+
+// Handle scroll events with enhanced tracking
+function onScroll() {
+    // Get current scroll position
+    targetScrollY = window.scrollY;
+    
+    // Sync with global scroll state
+    if (window.scrollState) {
+        scrollState = window.scrollState;
+    }
+    
+    // Sync with section visibility state
+    if (window.sectionInView) {
+        sectionInView = window.sectionInView;
+    }
+}
+
 function animate() {
     requestAnimationFrame(animate);
     
@@ -225,36 +322,174 @@ function animate() {
     
     const time = Date.now() * 0.001;
     
-    // Animate floating elements
-    particles.forEach(particle => {
-        // Gentle floating motion
-        particle.mesh.position.x = particle.initialPosition.x + Math.sin(time * particle.moveSpeed.x) * 2;
-        particle.mesh.position.y = particle.initialPosition.y + Math.cos(time * particle.moveSpeed.y) * 2;
-        particle.mesh.position.z = particle.initialPosition.z + Math.sin(time * particle.moveSpeed.z) * 1;
-        
-        // Subtle rotation
-        particle.mesh.rotation.x += particle.rotationSpeed.x;
-        particle.mesh.rotation.y += particle.rotationSpeed.y;
-        particle.mesh.rotation.z += particle.rotationSpeed.z;
-    });
+    // Smooth transitions for mouse and scroll
+    mouse.x += (targetMouse.x - mouse.x) * 0.05;
+    mouse.y += (targetMouse.y - mouse.y) * 0.05;
+    scrollY += (targetScrollY - scrollY) * 0.1;
     
-    // Mouse interaction - move particles slightly based on mouse position
-    if (window.mouseX !== undefined && window.mouseY !== undefined) {
-        particles.forEach(particle => {
-            particle.mesh.position.x += (window.mouseX * 0.0005);
-            particle.mesh.position.y += (window.mouseY * 0.0005);
-        });
+    // Update pulse effect time if active
+    if (particlePulseActive) {
+        particlePulseTime += 0.016; // Roughly 60fps
     }
     
+    // Animate floating elements with enhanced cursor, magnetic and scroll influence
+    particles.forEach(particle => {
+        // Base animation - gentle floating motion
+        let posX = particle.initialPosition.x + Math.sin(time * particle.moveSpeed.x) * 2;
+        let posY = particle.initialPosition.y + Math.cos(time * particle.moveSpeed.y) * 2;
+        let posZ = particle.initialPosition.z + Math.sin(time * particle.moveSpeed.z) * 1;
+        
+        // Add cursor influence - particles move subtly with cursor
+        posX += mouse.x * 5 * particle.mouseSensitivity.x;
+        posY += mouse.y * 5 * particle.mouseSensitivity.y;
+        
+        // Add magnetic effect when hovering interactive elements
+        if (magneticEffect.active) {
+            const mx = magneticEffect.position.x;
+            const my = magneticEffect.position.y;
+            const distanceFromMouse = Math.sqrt(
+                Math.pow(particle.mesh.position.x - (mx * 20), 2) +
+                Math.pow(particle.mesh.position.y - (my * 20), 2)
+            );
+            
+            // Particles are attracted to or repelled from the cursor
+            const gravitationalPull = 15 / (distanceFromMouse + 1) * magneticEffect.intensity;
+            const directionX = (mx * 20 - particle.mesh.position.x);
+            const directionY = (my * 20 - particle.mesh.position.y);
+            
+            // Apply a force based on distance and direction
+            posX += directionX * gravitationalPull * 0.01;
+            posY += directionY * gravitationalPull * 0.01;
+        }
+        
+        // Add enhanced hero interaction effect
+        if (heroInteractionParams) {
+            posX += heroInteractionParams.x * particle.mouseSensitivity.x * heroInteractionParams.intensity;
+            posY += heroInteractionParams.y * particle.mouseSensitivity.y * heroInteractionParams.intensity;
+        }
+        
+        // Add scroll influence with direction awareness - creates parallax effect
+        posY += (scrollY * 0.01) * particle.scrollSensitivity;
+        
+        // Add scroll velocity effect - particles react to how fast user scrolls
+        if (scrollState.velocity > 5) {
+            const scrollForce = scrollState.velocity * 0.005;
+            const scrollDirection = scrollState.direction === 'down' ? -1 : 1;
+            posY += scrollForce * scrollDirection * particle.scrollSensitivity;
+        }
+        
+        // Add section transition pulse effect
+        if (particlePulseActive) {
+            const distanceToPulse = Math.sqrt(
+                Math.pow(particle.initialPosition.x - particlePulseOrigin.x, 2) +
+                Math.pow(particle.initialPosition.y - particlePulseOrigin.y, 2) +
+                Math.pow(particle.initialPosition.z - particlePulseOrigin.z, 2)
+            );
+            
+            // Create a ripple effect that moves outward
+            const pulseDistance = particlePulseTime * 15; // Speed of pulse
+            const pulseMagnitude = 2; // Size of pulse
+            const pulseWidth = 10; // Width of pulse wave
+            
+            if (Math.abs(distanceToPulse - pulseDistance) < pulseWidth) {
+                const pulseFactor = 1 - (Math.abs(distanceToPulse - pulseDistance) / pulseWidth);
+                const pulseDirection = {
+                    x: (particle.initialPosition.x - particlePulseOrigin.x) / (distanceToPulse || 1),
+                    y: (particle.initialPosition.y - particlePulseOrigin.y) / (distanceToPulse || 1),
+                    z: (particle.initialPosition.z - particlePulseOrigin.z) / (distanceToPulse || 1)
+                };
+                
+                posX += pulseDirection.x * pulseFactor * pulseMagnitude;
+                posY += pulseDirection.y * pulseFactor * pulseMagnitude;
+                posZ += pulseDirection.z * pulseFactor * pulseMagnitude;
+            }
+        }
+        
+        // Apply position with subtle smoothing
+        particle.mesh.position.x = posX;
+        particle.mesh.position.y = posY;
+        particle.mesh.position.z = posZ;
+        
+        // Enhanced rotation animation with mouse influence
+        particle.mesh.rotation.x += particle.rotationSpeed.x + (mouse.y * 0.001);
+        particle.mesh.rotation.y += particle.rotationSpeed.y + (mouse.x * 0.001);
+        particle.mesh.rotation.z += particle.rotationSpeed.z;
+        
+        // Enhanced scale effect based on mouse proximity to create depth effect
+        const mouseDistance = Math.sqrt(
+            Math.pow(mouse.x * window.innerWidth / 2 - (posX * 50), 2) + 
+            Math.pow(mouse.y * window.innerHeight / 2 - (posY * 50), 2)
+        ) / 500;
+        
+        // Subtle scale effect on mouse proximity with scroll influence
+        let targetScale = particle.mesh.scale.x;
+        
+        // Base scale effect from mouse proximity
+        targetScale = particle.mesh.scale.x + (1 - Math.min(mouseDistance, 1)) * 0.1 * particle.parallaxFactor;
+        
+        // Add magnetic effect on scale
+        if (magneticEffect.active) {
+            const distanceToMagneticCenter = Math.sqrt(
+                Math.pow(particle.mesh.position.x - (magneticEffect.position.x * 20), 2) +
+                Math.pow(particle.mesh.position.y - (magneticEffect.position.y * 20), 2)
+            );
+            const magneticScale = 0.2 * Math.max(0, 1 - (distanceToMagneticCenter / 30));
+            targetScale += magneticScale;
+        }
+        
+        // Add pulse scale effect
+        if (particlePulseActive) {
+            const distanceToPulse = Math.sqrt(
+                Math.pow(particle.initialPosition.x - particlePulseOrigin.x, 2) +
+                Math.pow(particle.initialPosition.y - particlePulseOrigin.y, 2) +
+                Math.pow(particle.initialPosition.z - particlePulseOrigin.z, 2)
+            );
+            const pulseDistance = particlePulseTime * 15;
+            const pulseWidth = 10;
+            
+            if (Math.abs(distanceToPulse - pulseDistance) < pulseWidth) {
+                const pulseFactor = 1 - (Math.abs(distanceToPulse - pulseDistance) / pulseWidth);
+                targetScale += pulseFactor * 0.3;
+            }
+        }
+        
+        // Apply scale with smoothing
+        const scale = particle.mesh.scale.x;
+        particle.mesh.scale.set(
+            scale + (targetScale - scale) * 0.05,
+            scale + (targetScale - scale) * 0.05, 
+            scale + (targetScale - scale) * 0.05
+        );
+    });
+    
+    // More responsive camera based on interactions
+    if (camera) {
+        // Base subtle mouse following
+        let targetCameraX = mouse.x * 2;
+        let targetCameraY = mouse.y * 2;
+        
+        // Add hero interaction effect to camera
+        if (heroInteractionParams) {
+            targetCameraX += heroInteractionParams.x * 1.5;
+            targetCameraY += heroInteractionParams.y * 1.5;
+        }
+        
+        // Add scroll influence to camera
+        if (scrollState.velocity > 5) {
+            const scrollDirection = scrollState.direction === 'down' ? -1 : 1;
+            targetCameraY += scrollDirection * (scrollState.velocity * 0.01);
+        }
+        
+        // Apply camera position with smoothing
+        camera.position.x += (targetCameraX - camera.position.x) * 0.02;
+        camera.position.y += (targetCameraY - camera.position.y) * 0.02;
+        camera.lookAt(scene.position);
+    }
+    
+    // Update controls and render
     controls.update();
     renderer.render(scene, camera);
 }
-
-// Track mouse movement for interactive effect
-window.addEventListener('mousemove', (event) => {
-    window.mouseX = (event.clientX - window.innerWidth / 2);
-    window.mouseY = -(event.clientY - window.innerHeight / 2);
-});
 
 // Initialize scene on DOM loaded
 document.addEventListener('DOMContentLoaded', init);

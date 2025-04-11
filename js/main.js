@@ -505,4 +505,166 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Interactive 3D magnetic effect for important elements
+    const magneticElements = document.querySelectorAll('.hero-content, .cta-button, .service-card, .project-item');
+    
+    // Add magnetic effect to important elements
+    magneticElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            // Signal to three.js that mouse is over an interactive element
+            window.magneticEffect = {
+                active: true,
+                intensity: 2.5, // Stronger effect than regular mouse movement
+                position: { 
+                    x: 0,
+                    y: 0
+                }
+            };
+            
+            // Add visual indication that element is interactive
+            el.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            el.style.transform = 'scale(1.02)';
+            
+            // Track mouse position relative to this element for magnetic effect
+            el.addEventListener('mousemove', trackMagneticPosition);
+        });
+        
+        el.addEventListener('mouseleave', () => {
+            // Reset magnetic effect when mouse leaves
+            window.magneticEffect = {
+                active: false,
+                intensity: 0,
+                position: { x: 0, y: 0 }
+            };
+            
+            // Reset element transform
+            el.style.transform = '';
+            
+            // Remove the tracking event
+            el.removeEventListener('mousemove', trackMagneticPosition);
+        });
+    });
+    
+    // Track mouse position for magnetic effect
+    function trackMagneticPosition(e) {
+        const rect = this.getBoundingClientRect();
+        
+        // Calculate normalized position within element (-1 to 1)
+        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+        
+        // Update the global magnetic effect state
+        if (window.magneticEffect) {
+            window.magneticEffect.position.x = x;
+            window.magneticEffect.position.y = y;
+        }
+    }
+    
+    // Add scroll triggered animations that work with 3D background
+    const scrollAnimatedSections = document.querySelectorAll('.about, .services, .projects, .testimonials, .contact');
+    
+    const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // When a section comes into view, signal to three.js to create an effect
+                window.sectionInView = {
+                    id: entry.target.id,
+                    progress: 0
+                };
+                
+                // Add visible class to trigger CSS animations
+                entry.target.classList.add('section-visible');
+                
+                // Create a subtle pulse effect in the 3D particles when section enters view
+                if (window.createParticlePulse) {
+                    window.createParticlePulse(entry.target.id);
+                }
+            }
+        });
+    }, { threshold: 0.2 });
+    
+    // Observe scroll animated sections
+    scrollAnimatedSections.forEach(section => {
+        scrollObserver.observe(section);
+    });
+    
+    // Track scroll position for parallax and animation effects
+    let lastScrollY = window.scrollY;
+    let scrollDirection = 'down';
+    
+    window.addEventListener('scroll', () => {
+        // Determine scroll direction
+        scrollDirection = window.scrollY > lastScrollY ? 'down' : 'up';
+        lastScrollY = window.scrollY;
+        
+        // Update global state for three.js
+        window.scrollState = {
+            position: window.scrollY,
+            direction: scrollDirection,
+            velocity: Math.min(Math.abs(window.scrollY - lastScrollY), 30) // Capped velocity
+        };
+        
+        // Add scroll-driven animations to sections currently in view
+        document.querySelectorAll('.section-visible').forEach(section => {
+            // Calculate how far into the section we've scrolled (0-1)
+            const rect = section.getBoundingClientRect();
+            const sectionProgress = 1 - (rect.bottom / (window.innerHeight + rect.height));
+            
+            // Update the global section progress for three.js animation
+            if (window.sectionInView && window.sectionInView.id === section.id) {
+                window.sectionInView.progress = Math.max(0, Math.min(1, sectionProgress));
+            }
+        });
+    });
+    
+    // Add mouse interaction effect to hero content
+    const heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+        heroContent.addEventListener('mousemove', (e) => {
+            const rect = heroContent.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            
+            // Apply subtle tilt effect to hero content
+            heroContent.style.transform = `perspective(1000px) rotateX(${y * -4}deg) rotateY(${x * 4}deg) translateZ(10px)`;
+            
+            // Signal to three.js for deeper interaction
+            if (window.heroInteraction) {
+                window.heroInteraction({
+                    x: x * 2,
+                    y: y * 2,
+                    intensity: 1.5
+                });
+            }
+        });
+        
+        heroContent.addEventListener('mouseleave', () => {
+            // Reset transform when mouse leaves
+            heroContent.style.transform = '';
+            
+            // Reset three.js interaction
+            if (window.heroInteraction) {
+                window.heroInteraction(null);
+            }
+        });
+    }
+    
+    // Create global functions for three.js to communicate with
+    
+    // Create a particle pulse effect
+    window.createParticlePulse = (sectionId) => {
+        // This will be implemented in three-scene.js
+        if (window.pulseParticles) {
+            window.pulseParticles(sectionId);
+        }
+    };
+    
+    // Set up hero interaction
+    window.heroInteraction = (params) => {
+        // This will be implemented in three-scene.js
+        if (window.setHeroInteraction) {
+            window.setHeroInteraction(params);
+        }
+    };
 });
